@@ -20,6 +20,10 @@
 </head>
 <body>
 <div id="controls">
+  <form action="#" id="add-framework-form">
+    <input type="text" id="add-framework-value" />
+    <button class="pure-button">Add Framework</button>
+  </form>
   <button id="start-button" class="pure-button pure-button-secondary">Start Tests</button>
 </div>
 <table class="pure-table pure-table-bordered">
@@ -63,30 +67,35 @@ var TestNames = [];
 for (var testName in TESTS) {
   TestNames.push(testName);
 }
-var TestObjs = TestNames.map(function(testName) {
-  var testObj = {
-    frameworks: []
-  };
-  var row = document.createElement('tr');
-  resultTable.appendChild(row);
-  row.innerHTML = '<td>' + testName + '</td>';
-  for (var framework in FrameworkTests) {
-    var cell = document.createElement('td');
-    testObj.frameworks.push({
-      run: function(framework, cell) {
-        FrameworkTests[framework][testName](function(result) {
-          cell.innerHTML =
-            parseFloat(Math.round(result.time * 100) / 100).toFixed(2) + 'ms';
-        });
-      }.bind(null, framework, cell),
-      clear: function(cell) {
-        cell.innerHTML = '';
-      }.bind(null, cell)
-    });
-    row.appendChild(cell);
-  }
-  return testObj;
-});
+var TestObjs;
+function initTests() {
+  resultTable.innerHTML = '';
+  TestObjs = TestNames.map(function(testName) {
+    var testObj = {
+      frameworks: []
+    };
+    var row = document.createElement('tr');
+    resultTable.appendChild(row);
+    row.innerHTML = '<td>' + testName + '</td>';
+    for (var framework in FrameworkTests) {
+      var cell = document.createElement('td');
+      testObj.frameworks.push({
+        run: function(framework, cell) {
+          FrameworkTests[framework][testName](function(result) {
+            cell.innerHTML =
+              parseFloat(Math.round(result.time * 100) / 100).toFixed(2) + 'ms';
+          });
+        }.bind(null, framework, cell),
+        clear: function(cell) {
+          cell.innerHTML = '';
+        }.bind(null, cell)
+      });
+      row.appendChild(cell);
+    }
+    return testObj;
+  });
+}
+initTests();
 
 var runnerInterval;
 document.getElementById('start-button').addEventListener('click', function() {
@@ -110,6 +119,13 @@ document.getElementById('start-button').addEventListener('click', function() {
       runnerInterval = null;
     }
   }, 1000);
+}, false);
+
+document.getElementById('add-framework-form').addEventListener('submit', function(evt) {
+  var frameworkValue = document.getElementById('add-framework-value').value;
+  initFramework(frameworkValue);
+  initTests();
+  evt.preventDefault();
 }, false);
 </script>
 </body>
