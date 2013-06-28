@@ -9,12 +9,15 @@
   iframe { border: 0; height: 0; width: 0; }
   #controls { margin-bottom: 20px; }
   .pure-button-secondary {
-      color: white;
-      border-radius: 4px;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   }
   .pure-button-secondary {
-      background: rgb(66, 184, 221); /* this is a light blue */
+    background: rgb(66, 184, 221); /* this is a light blue */
+  }
+  .num-runs {
+    color: #ccc;
   }
 </style>
 </head>
@@ -80,10 +83,12 @@ function initTests() {
     for (var framework in FrameworkTests) {
       var cell = document.createElement('td');
       testObj.frameworks.push({
-        run: function(framework, cell) {
+        run: function(framework, cell, callback) {
           FrameworkTests[framework][testName](function(result) {
             cell.innerHTML =
-              parseFloat(Math.round(result.time * 100) / 100).toFixed(2) + 'ms';
+              parseFloat(Math.round(result.time * 100) / 100).toFixed(2) + 'ms'
+            + ' <span class="num-runs">(' + result.numRuns + ' runs)</span>';
+            callback();
           });
         }.bind(null, framework, cell),
         clear: function(cell) {
@@ -112,13 +117,16 @@ document.getElementById('start-button').addEventListener('click', function() {
     });
   });
 
-  runnerInterval = setInterval(function() {
-    (testRunners.shift())();
-    if (testRunners.length === 0) {
-      clearInterval(runnerInterval);
-      runnerInterval = null;
+  var runTest = function() {
+    var runner = testRunners.shift();
+    if (runner) {
+      runner(function() {
+        // minor breathing room between tests
+        setTimeout(runTest, 10);
+      });
     }
-  }, 1000);
+  };
+  runTest();
 }, false);
 
 document.getElementById('add-framework-form').addEventListener('submit', function(evt) {

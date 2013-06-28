@@ -31,6 +31,7 @@ function loadScript(url, callback) {
 
 function wrapTest(testFunc) {
   return function(callback) {
+    var totalStartTime = new Date().getTime();
     var startTime;
     var totalTime = 0;
     var numRuns = 0;
@@ -45,11 +46,12 @@ function wrapTest(testFunc) {
         },
         function() {
           numRuns++;
-          if (numRuns < NUM_RUNS_PER_TEST) {
+          var totalEndTime = new Date().getTime();
+          // Keep rerunning test until we use up the allotted time
+          if (totalEndTime - totalStartTime < DURATION_MS_PER_TEST) {
             testRunner();
           } else {
-            var endTime = new Date().getTime();
-            callback({time: totalTime / numRuns});
+            callback({time: totalTime / numRuns, numRuns: numRuns});
           }
         }
       );
