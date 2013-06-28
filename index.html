@@ -16,9 +16,8 @@
   .pure-button-secondary {
     background: rgb(66, 184, 221); /* this is a light blue */
   }
-  .num-runs {
-    color: #ccc;
-  }
+  .error { color: rgb(202, 60, 60); }
+  .num-runs { color: #ccc; }
 </style>
 </head>
 <body>
@@ -85,9 +84,13 @@ function initTests() {
       testObj.frameworks.push({
         run: function(framework, cell, callback) {
           FrameworkTests[framework][testName](function(result) {
-            cell.innerHTML =
-              parseFloat(Math.round(result.time * 100) / 100).toFixed(2) + 'ms'
-            + ' <span class="num-runs">(' + result.numRuns + ' runs)</span>';
+            if (result.err) {
+              cell.innerHTML = '<span class="error">Error: ' + result.err.message + '</span>';
+            } else {
+              cell.innerHTML =
+                parseFloat(Math.round(result.time * 100) / 100).toFixed(2) + 'ms'
+              + ' <span class="num-runs">(' + result.numRuns + ' runs)</span>';
+            }
             callback();
           });
         }.bind(null, framework, cell),

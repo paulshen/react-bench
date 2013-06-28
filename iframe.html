@@ -36,25 +36,29 @@ function wrapTest(testFunc) {
     var totalTime = 0;
     var numRuns = 0;
     var testRunner = function() {
-      testFunc(
-        function() {
-          startTime = new Date().getTime();
-        },
-        function() {
-          var endTime = new Date().getTime();
-          totalTime += (endTime - startTime);
-        },
-        function() {
-          numRuns++;
-          var totalEndTime = new Date().getTime();
-          // Keep rerunning test until we use up the allotted time
-          if (totalEndTime - totalStartTime < DURATION_MS_PER_TEST) {
-            testRunner();
-          } else {
-            callback({time: totalTime / numRuns, numRuns: numRuns});
+      try {
+        testFunc(
+          function() {
+            startTime = new Date().getTime();
+          },
+          function() {
+            var endTime = new Date().getTime();
+            totalTime += (endTime - startTime);
+          },
+          function() {
+            numRuns++;
+            var totalEndTime = new Date().getTime();
+            // Keep rerunning test until we use up the allotted time
+            if (totalEndTime - totalStartTime < DURATION_MS_PER_TEST) {
+              testRunner();
+            } else {
+              callback({time: totalTime / numRuns, numRuns: numRuns});
+            }
           }
-        }
-      );
+        );
+      } catch(e) {
+        callback({err: e});
+      }
     };
     testRunner();
   };
