@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="config.js"></script>
+<script src="tests.js"></script>
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.0/pure-min.css">
+<style type="text/css">
+  body { padding: 100px; }
+  iframe { border: 0; height: 0; width: 0; }
+  #controls { margin-bottom: 20px; }
+  .pure-button-secondary {
+      color: white;
+      border-radius: 4px;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  }
+  .pure-button-secondary {
+      background: rgb(66, 184, 221); /* this is a light blue */
+  }
+</style>
+</head>
+<body>
+<div id="controls">
+  <button id="start-button" class="pure-button pure-button-secondary">Start Tests</button>
+</div>
+<table class="pure-table pure-table-bordered">
+  <thead>
+    <tr id="header-row">
+      <th>Test</th>
+    </tr>
+  </thead>
+  <tbody id="result-table">
+  </tbody>
+</table>
+
+<script type="text/javascript">
+var FrameworkTests = {};
+var resultTable = document.getElementById('result-table');
+var headerRow = document.getElementById('header-row');
+function initFramework(src) {
+  var iframe = document.createElement('iframe');
+  iframe.width = 0;
+  iframe.height = 0;
+  iframe.src = 'iframe.html?src=' + src;
+  document.body.appendChild(iframe);
+  iframe.onload = function() {
+    iframe.contentWindow.postMessage('onload', iframe.contentWindow.location.origin);
+  };
+  FrameworkTests[src] = {};
+  window.addEventListener('message', function(msg) {
+    if (msg.data === 'ready') {
+      FrameworkTests[src] = iframe.contentWindow.Tests;
+    }
+  }, false);
+  var headerCell = document.createElement('th');
+  headerCell.innerHTML = src;
+  headerRow.appendChild(headerCell);
+}
+FRAMEWORK_SOURCES.forEach(function(framework_source) {
+  initFramework(framework_source);
+});
+
+var TestNames = [];
+for (var testName in TESTS) {
+  TestNames.push(testName);
+}
+var TestObjs = TestNames.map(function(testName) {
+  var testObj = {
+    frameworks: []
+  };
+  var row = document.createElement('tr');
+  resultTable.appendChild(row);
+  row.innerHTML = '<td>' + testName + '</td>';
+  for (var framework in FrameworkTests) {
+    var cell = document.createElement('td');
+    testObj.frameworks.push({
+      run: function(framework, cell) {
+        FrameworkTests[framework][testName](function(result) {
+          cell.innerHTML =
+            parseFloat(Math.round(result.time * 100) / 100).toFixed(2) + 'ms';
+        });
+      }.bind(null, framework, cell),
+      clear: function(cell) {
+        cell.innerHTML = '';
+      }.bind(null, cell)
+    });
+    row.appendChild(cell);
+  }
+  return testObj;
+});
+
+var runnerInterval;
+document.getElementById('start-button').addEventListener('click', function() {
+  if (runnerInterval) {
+    clearInterval(runnerInterval);
+    runnerInterval = null;
+  }
+
+  var testRunners = [];
+  TestObjs.forEach(function(testObj) {
+    testObj.frameworks.forEach(function(framework) {
+      framework.clear();
+      testRunners.push(framework.run);
+    });
+  });
+
+  runnerInterval = setInterval(function() {
+    (testRunners.shift())();
+    if (testRunners.length === 0) {
+      clearInterval(runnerInterval);
+      runnerInterval = null;
+    }
+  }, 1000);
+}, false);
+</script>
+</body>
+</html>
