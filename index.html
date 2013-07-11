@@ -66,11 +66,13 @@ FRAMEWORK_SOURCES.forEach(function(framework_source) {
 });
 
 function formatNumber(number) {
-  if (number > 100) {
-    // Put spaces every 3 digits
-    return ('' + Math.round(number))
-      .split('').reverse().join('')
-      .replace(/(...)/g, '$1 ').split('').reverse().join('').trim();
+  if (number >= 100) {
+    var numberStr = Math.round(number).toString();
+    // Put commas every 3 digits
+    while (/(\d+)(\d{3})/.test(numberStr)){
+      numberStr = numberStr.replace(/(\d+)(\d{3})/, '$1'+','+'$2');
+    }
+    return numberStr;
   }
 
   // If it's a small number, then have 2 digits of precision
