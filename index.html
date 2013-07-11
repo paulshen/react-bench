@@ -17,13 +17,13 @@
     background: rgb(66, 184, 221); /* this is a light blue */
   }
   .error { color: rgb(202, 60, 60); }
-  .num-runs, .approx { color: #ccc; font-size: 10px; }
+  #testSrcLink, .num-runs, .approx { color: #999; font-size: 12px; }
 </style>
 </head>
 <body>
 <div id="controls">
   <form action="#" id="add-framework-form">
-    <input type="text" id="add-framework-value" />
+    <input type="text" id="add-framework-value" placeholder="http://path/to/react.js" />
     <button class="pure-button">Add Framework</button>
   </form>
   <button id="start-button" class="pure-button pure-button-secondary">Start Tests</button>
@@ -31,7 +31,7 @@
 <table class="pure-table pure-table-bordered">
   <thead>
     <tr id="header-row">
-      <th>Test</th>
+      <th>Test <a href="tests.js" id="testSrcLink">src</a></th>
     </tr>
   </thead>
   <tbody id="result-table">
@@ -39,6 +39,16 @@
 </table>
 
 <script type="text/javascript">
+function getParameterByName(name) {
+  var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+var preloadSrc = getParameterByName('frameworkSrc');
+if (preloadSrc) {
+  FRAMEWORK_SOURCES.push(preloadSrc);
+}
+
 var FrameworkTests = {};
 var resultTable = document.getElementById('result-table');
 var headerRow = document.getElementById('header-row');
