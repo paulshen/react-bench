@@ -1,34 +1,81 @@
 var TESTS = {
-  singleDiv: function(timerStart, timerEnd, onDone) {
+  changeTextContent: function() {
     var mountNode = document.getElementById('mountNode');
-    timerStart();
-    for (var ii = 0; ii < 500; ii++) {
+    // --
+    for (var ii = 0; ii < 10; ii++) {
       React.renderComponent(React.DOM.div({}, ii), mountNode);
     }
-    timerEnd();
+    // --
     React.unmountAndReleaseReactRootNode(mountNode);
-    onDone();
   },
-  
-  changeClassName: function(timerStart, timerEnd, onDone) {
+
+  changeClassName: function() {
     var mountNode = document.getElementById('mountNode');
-    timerStart();
-    for (var ii = 0; ii < 500; ii++) {
+    // --
+    for (var ii = 0; ii < 10; ii++) {
       React.renderComponent(React.DOM.div({className: ii}), mountNode);
     }
-    timerEnd();
+    // --
     React.unmountAndReleaseReactRootNode(mountNode);
-    onDone();
   },
 
-  numbersTable: function(timerStart, timerEnd, onDone) {
+  // This test renders a very deep element
+  deepElement: function() {
     var mountNode = document.getElementById('mountNode');
+    // --
+    var div = React.DOM.div({});
+    for (var ii = 0; ii < 100; ii++) {
+      div = React.DOM.div({}, div);
+    }
+    React.renderComponent(div, mountNode);
+    // --
+    React.unmountAndReleaseReactRootNode(mountNode);
+  },
+
+  // This test exercises hiding and displaying a node
+  toggleElement: function() {
+    var mountNode = document.getElementById('mountNode');
+    // --
+    React.renderComponent(React.DOM.div({}, React.DOM.div({})), mountNode);
+    React.renderComponent(React.DOM.div({}, null), mountNode);
+    // --
+    React.unmountAndReleaseReactRootNode(mountNode);
+  },
+
+  // This test exercises scrolling through a list of elements in a table.
+  // At every step, the first row is deleted and a new row is added at the end.
+  rollingTable: function() {
+    var mountNode = document.getElementById('mountNode');
+    // --
+    for (var ii = 0; ii < 20; ii++) {
+      var rows = {};
+      for (var jj = 0; jj < 20; jj++) {
+        rows[ii + jj] =
+          React.DOM.tr({},
+            [React.DOM.td({}, ii), React.DOM.td({}, jj)]
+          );
+      }
+      var table = React.DOM.table({},
+        React.DOM.tbody({},
+          rows
+        )
+      );
+
+      React.renderComponent(table, mountNode);
+    }
+    // --
+    React.unmountAndReleaseReactRootNode(mountNode);
+  },
+
+  numbersTable: function() {
+    var mountNode = document.getElementById('mountNode');
+    var N = 10;
 
     var data = [];
-    for (var ii = 0; ii < 50; ii++) {
+    for (var ii = 0; ii < N; ii++) {
       data[ii] = [];
-      for (var jj = 0; jj < 50; jj++) {
-        data[ii][jj] = ii * 50 + jj;
+      for (var jj = 0; jj < N; jj++) {
+        data[ii][jj] = ii * N + jj;
       }
     }
     var Cell = React.createClass({
@@ -55,20 +102,9 @@ var TESTS = {
       }
     });
 
-    var numRender = 0;
-    var renderPass = function() {
-      timerStart();
-      React.renderComponent(Table({data: data}), mountNode);
-      timerEnd();
-
-      numRender++;
-      if (numRender === 4) {
-        React.unmountAndReleaseReactRootNode(mountNode);
-        onDone();
-      } else {
-        setTimeout(renderPass, 50);
-      }
-    }
-    renderPass();
+    // --
+    React.renderComponent(Table({data: data}), mountNode);
+    // --
+    React.unmountAndReleaseReactRootNode(mountNode);
   }
 };

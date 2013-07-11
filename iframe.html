@@ -3,6 +3,7 @@
 <head>
 <script src="config.js"></script>
 <script src="tests.js"></script>
+<script src="benchmark.js"></script>
 </head>
 <body>
 <script type="text/javascript">
@@ -31,36 +32,21 @@ function loadScript(url, callback) {
 
 function wrapTest(testFunc) {
   return function(callback) {
-    var totalStartTime = new Date().getTime();
-    var startTime;
-    var totalTime = 0;
-    var numRuns = 0;
-    var testRunner = function() {
-      try {
-        testFunc(
-          function() {
-            startTime = new Date().getTime();
-          },
-          function() {
-            var endTime = new Date().getTime();
-            totalTime += (endTime - startTime);
-          },
-          function() {
-            numRuns++;
-            var totalEndTime = new Date().getTime();
-            // Keep rerunning test until we use up the allotted time
-            if (totalEndTime - totalStartTime < DURATION_MS_PER_TEST) {
-              testRunner();
-            } else {
-              callback({time: totalTime / numRuns, numRuns: numRuns});
-            }
-          }
-        );
-      } catch(e) {
-        callback({err: e});
-      }
-    };
-    testRunner();
+    var parts = ('(' + testFunc + ')()').split('// --');
+    new Benchmark({
+      setup: parts[0],
+      fn: parts[1],
+      teardown: parts[2],
+      onComplete: function(e) {
+        callback({
+          hz: e.target.hz,
+          rme: e.target.stats.rme,
+          runs: e.target.stats.sample.length
+        });
+      },
+      async: true,
+      maxTime: 1
+    }).run();
   };
 }
 

@@ -17,7 +17,7 @@
     background: rgb(66, 184, 221); /* this is a light blue */
   }
   .error { color: rgb(202, 60, 60); }
-  .num-runs { color: #ccc; }
+  .num-runs, .approx { color: #ccc; font-size: 10px; }
 </style>
 </head>
 <body>
@@ -65,6 +65,18 @@ FRAMEWORK_SOURCES.forEach(function(framework_source) {
   initFramework(framework_source);
 });
 
+function formatNumber(number) {
+  if (number > 100) {
+    // Put spaces every 3 digits
+    return ('' + Math.round(number))
+      .split('').reverse().join('')
+      .replace(/(...)/g, '$1 ').split('').reverse().join('').trim();
+  }
+
+  // If it's a small number, then have 2 digits of precision
+  return number.toFixed(2);
+}
+
 var TestNames = [];
 for (var testName in TESTS) {
   TestNames.push(testName);
@@ -84,13 +96,9 @@ function initTests() {
       testObj.frameworks.push({
         run: function(framework, cell, callback) {
           FrameworkTests[framework][testName](function(result) {
-            if (result.err) {
-              cell.innerHTML = '<span class="error">Error: ' + result.err.message + '</span>';
-            } else {
-              cell.innerHTML =
-                parseFloat(Math.round(result.time * 100) / 100).toFixed(2) + 'ms'
-              + ' <span class="num-runs">(' + result.numRuns + ' runs)</span>';
-            }
+            cell.innerHTML = formatNumber(result.hz) + ' <small>ops/s</small> ' +
+              '<span title="' + formatNumber(result.hz * (1 - result.rme / 100)) + ' - ' + formatNumber(result.hz * (1 + result.rme / 100)) + '" class="approx">\xb1' + formatNumber(result.rme) + '%</span> ' +
+              '<span class="num-runs">(' + result.runs + ' runs)</span>';
             callback();
           });
         }.bind(null, framework, cell),
