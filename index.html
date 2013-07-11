@@ -8,6 +8,7 @@
   body { padding: 100px; }
   iframe { border: 0; height: 0; width: 0; }
   #controls { margin-bottom: 20px; }
+  #add-framework-form { margin-top: 20px; }
   .pure-button-secondary {
     color: white;
     border-radius: 4px;
@@ -22,10 +23,6 @@
 </head>
 <body>
 <div id="controls">
-  <form action="#" id="add-framework-form">
-    <input type="text" id="add-framework-value" placeholder="http://path/to/react.js" />
-    <button class="pure-button">Add Framework</button>
-  </form>
   <button id="start-button" class="pure-button pure-button-secondary">Start Tests</button>
 </div>
 <table class="pure-table pure-table-bordered">
@@ -37,6 +34,10 @@
   <tbody id="result-table">
   </tbody>
 </table>
+<form action="#" id="add-framework-form">
+  <input type="text" id="add-framework-value" placeholder="http://path/to/react.js" />
+  <button class="pure-button">Add Framework</button>
+</form>
 
 <script type="text/javascript">
 function getParameterByName(name) {
