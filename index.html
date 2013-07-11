@@ -116,7 +116,13 @@ function initTests() {
 initTests();
 
 var runnerInterval;
-document.getElementById('start-button').addEventListener('click', function() {
+var startButton = document.getElementById('start-button');
+startButton.addEventListener('click', function() {
+  startButton.innerHTML = 'Tests running...';
+  if (startButton.classList) {
+    startButton.classList.add('pure-button-disabled');
+  }
+
   if (runnerInterval) {
     clearInterval(runnerInterval);
     runnerInterval = null;
@@ -137,6 +143,11 @@ document.getElementById('start-button').addEventListener('click', function() {
         // minor breathing room between tests
         setTimeout(runTest, 10);
       });
+    } else {
+      startButton.innerHTML = 'Start Tests';
+      if (startButton.classList) {
+        startButton.classList.remove('pure-button-disabled');
+      }
     }
   };
   runTest();
