@@ -106,5 +106,63 @@ var TESTS = {
     React.renderComponent(Table({data: data}), mountNode);
     // --
     React.unmountAndReleaseReactRootNode(mountNode);
+  },
+
+  bigFlatListReconcile: function() {
+    var mountNode = document.getElementById('mountNode');
+
+    var Child = React.createClass({
+      render: function() {
+        // Add some extra props to dirty check
+        return React.DOM.div({style: {border: '1px solid red', fontFamily: 'sans-serif'}}, this.props.children);
+      }
+    });
+
+    var Parent = React.createClass({
+      render: function() {
+        var children = [];
+        for (var i = 0; i < 2000; i++) {
+          children.push(Child({key: 'child' + i}, 'child ' + i));
+        }
+        return React.DOM.div(null, children);
+      }
+    });
+    // --
+    for (var ii = 0; ii < 5; ii++) {
+      React.renderComponent(Parent(), mountNode);
+    }
+    // --
+    React.unmountAndReleaseReactRootNode(mountNode);
+  },
+
+  bigFlatListShouldUpdate: function() {
+    var mountNode = document.getElementById('mountNode');
+
+    var Child = React.createClass({
+      shouldComponentUpdate: function(nextProps) {
+        return this.props.children !== nextProps.children;
+      },
+
+      render: function() {
+        // Add some extra props to dirty check
+        return React.DOM.div({style: {border: '1px solid red', fontFamily: 'sans-serif'}}, this.props.children);
+      }
+    });
+
+    var Parent = React.createClass({
+      render: function() {
+        var children = [];
+        for (var i = 0; i < 2000; i++) {
+          children.push(Child({key: 'child' + i}, 'child ' + i));
+        }
+        return React.DOM.div(null, children);
+      }
+    });
+    // --
+    for (var ii = 0; ii < 5; ii++) {
+      React.renderComponent(Parent(), mountNode);
+    }
+    // --
+    React.unmountAndReleaseReactRootNode(mountNode);
   }
 };
