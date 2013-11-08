@@ -40,14 +40,19 @@
 </form>
 
 <script type="text/javascript">
-function getParameterByName(name) {
-  var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+function getParametersByName(name) {
+  var match;
+  var matches = [];
+  var re = RegExp('[?&]' + name + '=([^&]*)', 'g');
+  while ((match = re.exec(window.location.search)) !== null) {
+    matches.push(decodeURIComponent(match[1].replace(/\+/g, ' ')));
+  }
+  return matches;
 }
 
-var preloadSrc = getParameterByName('frameworkSrc');
-if (preloadSrc) {
-  FRAMEWORK_SOURCES.push(preloadSrc);
+var preloadSrc = getParametersByName('frameworkSrc');
+if (preloadSrc.length > 0) {
+  FRAMEWORK_SOURCES = FRAMEWORK_SOURCES.concat(preloadSrc);
 }
 
 var FrameworkTests = {};
