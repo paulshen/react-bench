@@ -1,4 +1,4 @@
 var FRAMEWORK_SOURCES = [
-  'http://fb.me/react-0.3.3.min.js',
-  'http://fb.me/react-0.3.3.js'
+  '//cdnjs.cloudflare.com/ajax/libs/react/0.5.1/react.min.js',
+  '//cdnjs.cloudflare.com/ajax/libs/react/0.4.1/react.min.js',
 ];
